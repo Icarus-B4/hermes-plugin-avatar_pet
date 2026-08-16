@@ -99,6 +99,13 @@ Feedback and contributions are welcome, especially around:
 Upstream feature request / discussion:
 
 - https://github.com/NousResearch/hermes-agent/issues/87574
+[hermes-avatar-NIVO-V5_1-ASSET-FIX.zip](https://github.com/user-attachments/files/31114765/hermes-avatar-NIVO-V5_1-ASSET-FIX.zip)
+
+<img width="1152" height="624" alt="Image" src="https://github.com/user-attachments/assets/7e787997-1f9a-449b-bb47-6caefb0398c7" />
+
+<img width="1152" height="624" alt="Image" src="https://github.com/user-attachments/assets/78550540-8b0a-461b-a220-d30c419cf3e0" />
+
+https://github.com/user-attachments/assets/8fff9112-67e9-42a4-843c-341a044fc843
 
 ## Files
 
