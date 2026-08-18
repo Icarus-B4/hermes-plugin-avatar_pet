@@ -9,11 +9,13 @@ const CW = 1152
 const CH = 624
 const FXW = 1248
 const FXH = 104
-const CHARACTER_FILE = 'NIVO_CHARACTER_ATLAS_v2.png'
+const CHARACTER_FILE = 'NIVO_CHARACTER_ATLAS_v3_aligned.png'
 const FX_FILE = 'NIVO_FX_ATLAS_v2.png'
 
-const IDLE = Array.from({ length: 8 }, (_, col) => ({ row: 0, col }))
-const BLINK = Array.from({ length: 6 }, (_, col) => ({ row: 1, col }))
+const IDLE = [4, 5, 6, 5].map(col => ({ row: 0, col }))
+const IDLE_FPS = 2
+const BLINK = [5, 3, 5].map(col => ({ row: 1, col }))
+const BLINK_FPS = 4
 const TALK = Array.from({ length: 6 }, (_, col) => ({ row: 2, col }))
 const EXPRESSIONS = Array.from({ length: 12 }, (_, col) => ({ row: 3, col }))
 const ACTIONS = Array.from({ length: 10 }, (_, col) => ({ row: 4, col }))
@@ -617,7 +619,10 @@ function HermesAvatar() {
   }, [clearPet])
 
   useEffect(() => {
-    if (mode !== 'idle' || voiceStatus !== 'idle') return undefined
+    if (mode !== 'idle' || voiceStatus !== 'idle') {
+      setBlink(false)
+      return undefined
+    }
     let alive = true
     const schedule = () => {
       blinkTimer.current = setTimeout(() => {
@@ -718,16 +723,14 @@ function HermesAvatar() {
     (voiceStatus === 'listening' || voiceStatus === 'muted') ? 4 :
     mode === 'action' && action ? (ACTION_FPS[action] || 3) :
     mode === 'talk' ? 10 :
-    blink ? 8 :
+    blink ? BLINK_FPS :
+    mode === 'idle' && expr === 'neutral' ? IDLE_FPS :
     (EXPR_FPS[expr] || 6)
 
   const loop =
     mode === 'pet' ? false :
-    voiceStatus === 'speaking' ||
-    voiceStatus === 'transcribing' ||
-    voiceStatus === 'thinking' ||
-    voiceStatus === 'listening' ||
-    voiceStatus === 'muted' ||
+    voiceStatus !== 'idle' ? true :
+    blink ? false :
     mode === 'action' ||
     mode === 'talk' ||
     mode === 'idle' ||

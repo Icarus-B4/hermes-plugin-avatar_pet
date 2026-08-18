@@ -8,8 +8,8 @@ The goal is to give Hermes a small visual character that reacts to the agent sta
 
 ## Current features
 
-- IDLE animation (8 frames)
-- BLINK animation (6 frames)
+- stabilized IDLE loop (4 low-motion steps selected from the 8-frame source row)
+- stabilized BLINK animation (open → closed → open using 3 low-motion steps)
 - TALK animation (6 frames)
 - 12 expression cells
 - 10 action poses
@@ -19,6 +19,7 @@ The goal is to give Hermes a small visual character that reacts to the agent sta
 - Canvas-based fixed-cell rendering to avoid visible atlas scrolling
 - manual controls for testing expressions/actions
 - provider-neutral VAD/TTS reactions through the public Desktop Plugin SDK
+- normalized IDLE/BLINK/TALK frame anchors without redrawing the character
 
 ## Action poses
 
@@ -36,6 +37,11 @@ The goal is to give Hermes a small visual character that reacts to the agent sta
 ## Atlas layout
 
 Character atlas: `1152 × 624`, `12 × 6` cells, `96 × 104` px per cell.
+
+The plugin uses `NIVO_CHARACTER_ATLAS_v3_aligned.png`. It preserves the original
+RGBA artwork and applies integer-only frame translation: no redrawing, warping,
+rescaling, interpolation, or style changes. The normalization also recovers the
+BLINK/TALK bottom strips that crossed into the next atlas row in v2.
 
 | Row | State | Frames |
 |---|---|---:|
@@ -57,7 +63,7 @@ Create the plugin folder **`hermes-avatar-v5`** and copy these files into it:
 ```text
 hermes-avatar-v5/
 ├── plugin.js
-├── NIVO_CHARACTER_ATLAS_v2.png
+├── NIVO_CHARACTER_ATLAS_v3_aligned.png
 └── NIVO_FX_ATLAS_v2.png
 ```
 
@@ -111,7 +117,8 @@ https://github.com/user-attachments/assets/8fff9112-67e9-42a4-843c-341a044fc843
 ## Files
 
 - `plugin.js` — Hermes Desktop plugin
-- `NIVO_CHARACTER_ATLAS_v2.png` — transparent character sprite atlas
+- `NIVO_CHARACTER_ATLAS_v3_aligned.png` — normalized transparent character sprite atlas
+- `NIVO_CHARACTER_ATLAS_v2.png` — original source atlas
 - `NIVO_FX_ATLAS_v2.png` — transparent FX sprite atlas
 
 ## License
