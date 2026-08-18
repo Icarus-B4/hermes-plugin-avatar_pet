@@ -250,85 +250,23 @@ function useAtlasAssets() {
   return { assets, error }
 }
 
-function detectHermesVoiceStatus(text) {
-  const s = String(text || '').replace(/\s+/g, ' ').trim().toLowerCase()
-  if (!s) return null
-
-  // Hermes Desktop VoicePlaybackActivity:
-  // "Preparing audio" -> "Speaking response" / "Reading aloud"
-  if (/speaking response|reading aloud|speaking|spricht|sprechen|wiedergabe/.test(s)) return 'speaking'
-  if (/preparing audio|audio vorbereit|prepare audio/.test(s)) return 'thinking'
-
-  // Hermes Desktop STT / voice-conversation UI.
-  if (/transcrib|transkrib|transkript/.test(s)) return 'transcribing'
-  if (/thinking|denkt|nachdenk|überleg|ueberleg/.test(s)) return 'thinking'
-  if (/listening|dictating|zuhör|zuhoer|hört zu|hoert zu|lauscht|diktier/.test(s)) return 'listening'
-  if (/muted|stumm/.test(s)) return 'muted'
-
-  return null
-}
-
 function useHermesVoiceStatus() {
   const [status, setStatus] = useState('idle')
 
   useEffect(() => {
-    if (typeof document === 'undefined' || typeof MutationObserver === 'undefined') {
-      return undefined
-    }
+    const lifecycle = host.state?.voiceLifecycle
+    const subscribe = host.onVoiceEvent
 
-    let timer = 0
+    if (!lifecycle?.get || typeof subscribe !== 'function') return undefined
 
-    const scan = () => {
-      timer = 0
-      let next = 'idle'
-      const nodes = Array.from(document.querySelectorAll('[role="status"]'))
-
-      // Actual TTS/read-aloud playback wins over all other voice UI states.
-      for (let i = nodes.length - 1; i >= 0; i -= 1) {
-        const normalized = String(nodes[i]?.textContent || '')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .toLowerCase()
-
-        if (/speaking response|reading aloud/.test(normalized)) {
-          next = 'speaking'
-          break
-        }
-      }
-
-      if (next === 'idle') {
-        for (let i = nodes.length - 1; i >= 0; i -= 1) {
-          const found = detectHermesVoiceStatus(nodes[i]?.textContent)
-          if (found) {
-            next = found
-            break
-          }
-        }
-      }
-
+    const sync = () => {
+      const current = lifecycle.get()
+      const next = current?.ttsSpeaking ? 'speaking' : current?.userSpeaking ? 'listening' : 'idle'
       setStatus(prev => prev === next ? prev : next)
     }
 
-    const scheduleScan = () => {
-      if (timer) return
-      timer = window.setTimeout(scan, 80)
-    }
-
-    const observer = new MutationObserver(scheduleScan)
-    observer.observe(document.body || document.documentElement, {
-      subtree: true,
-      childList: true,
-      characterData: true
-    })
-
-    const fallback = window.setInterval(scan, 500)
-    scan()
-
-    return () => {
-      observer.disconnect()
-      window.clearInterval(fallback)
-      if (timer) window.clearTimeout(timer)
-    }
+    sync()
+    return subscribe('*', sync)
   }, [])
 
   return status

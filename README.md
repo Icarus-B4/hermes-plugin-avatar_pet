@@ -4,7 +4,7 @@ Animated avatar / desktop companion plugin for **Hermes Desktop**.
 
 The goal is to give Hermes a small visual character that reacts to the agent state instead of remaining a static UI element.
 
-> Status: experimental community prototype. The visual controls work; automatic Hermes lifecycle/STT/TTS integration is still being improved.
+> Status: experimental community prototype. The visual controls and public Hermes voice-lifecycle integration work on Desktop builds that expose `host.onVoiceEvent`.
 
 ## Current features
 
@@ -18,6 +18,7 @@ The goal is to give Hermes a small visual character that reacts to the agent sta
 - pane + status-bar popup
 - Canvas-based fixed-cell rendering to avoid visible atlas scrolling
 - manual controls for testing expressions/actions
+- provider-neutral VAD/TTS reactions through the public Desktop Plugin SDK
 
 ## Action poses
 
@@ -83,7 +84,7 @@ The next goal is stable automatic reactions to Hermes lifecycle state:
 - error → sad / glitch
 - long idle → sleep
 
-The main missing piece is a stable public Desktop Plugin SDK signal for voice playback / voice-conversation state and other high-level semantic lifecycle states.
+Voice reactions use the public `host.onVoiceEvent` contract (`user_speech_started`, `user_speech_ended`, `tts_started`, `tts_ended`) and never inspect Desktop DOM labels or import Desktop internals. Older Desktop builds without this additive SDK surface keep the avatar idle during voice activity.
 
 ## Help wanted
 
